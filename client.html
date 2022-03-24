@@ -1,10 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WebSocker Client</title>
+
+    </head>
+
+    <body>
+
+        <button id="ping">Ping!</button>
+
+        <div id="messages" style="height: 200px; overflow-y: scroll;">
+
+        </div>
+
+        <form id="message_form" action="#">
+            <input id="text_input" type="text" placeholder="Your message here...">
+            <button type="submit">Send message</button>
+        </form>
+    </body>
+
+    <script>
+
+        const scrollToBottom = (node) => {
+            node.scrollTop = node.scrollHeight;
+        }
+
+        const socket = new WebSocket('ws://localhost:8000');
+
+        socket.addEventListener('open', function (event) {
+            socket.send('Connection established');
+        });
+
+        socket.addEventListener('message', function (event) {
+            console.log(event.data);
+
+            let msgs = document.querySelector("#messages");
+            let check = msgs.scrollHeight - msgs.scrollTop === msgs.clientHeight;
+
+            console.log(msgs.scrollTop, msgs.scrollHeight);
+
+            try{
+                console.log(msgs.lastChild.innerText);
+                if(msgs.lastChild.innerText.substring(0, event.data.length) == event.data)
+                {
+                    if(msgs.lastChild.innerText.search(/|\sx\d*$/) != -1) {
+                        msgs.lastChild.innerText.replace(/|\sx(\d*)$/, (a,b) => {`|x${}`} )
+                    }
+                    else {
+                        msgs.lastChild.innerText += '| x2';
+                    }
+                }
+            } catch (e){
+                console.log(e)
+            } finally{
+                msgs.innerHTML += `<p>${event.data}</p>`;
+            }
+
+            console.log(msgs.scrollTop, msgs.scrollHeight);
+
+            if(check)
+            {
+                scrollToBottom(msgs);
+            }
+        });
+
+        document.querySelector("#ping").addEventListener("click", () => {
+            socket.send("ping");
+        });
+        document.querySelector("#message_form").addEventListener("submit", function(e){
+            e.preventDefault();
+            socket.send(document.querySelector("#text_input").value);
+            e.target.value = '';
+        });
+
+    </script>
 </html>

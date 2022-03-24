@@ -1,0 +1,10 @@
+*.log
+
+# Dirs
+.env
+.venv
+
+venv/
+ENV/
+
+.idea
