@@ -49,7 +49,8 @@ async def handler(websocket, path):
 
     try:
         async for msg in websocket:
-            if msg == 'Connection established':
+            msg = msg.strip()
+            if msg in ('Connection established', ''):
                 pass
             elif msg == 'ping':
                 await websocket.send('[SERVER]: Pong!')
@@ -64,7 +65,7 @@ async def handler(websocket, path):
 # SETUP
 asyncio.get_event_loop().create_task(broadcast())
 
-print(f'Starting websocket server on {HOST}:{PORT}')
+print(f'Starting websocket server on ws://{HOST}:{PORT}')
 start_server = websockets.serve(handler, HOST, PORT)
 
 print('Running event loop..')

@@ -12,7 +12,7 @@
 
         <button id="ping">Ping!</button>
 
-        <div id="messages" style="height: 200px; overflow-y: scroll;">
+        <div id="messages" style="margin-top: 20px; height: 200px; overflow-y: scroll;">
 
         </div>
 
@@ -52,8 +52,6 @@
             else {
                 msgs.innerHTML += `<p>${event.data}</p>`;
             }
-
-            console.log(msgs.scrollTop, msgs.scrollHeight);
 
             if(checkScroll)
             {
