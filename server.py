@@ -1,8 +1,9 @@
 import asyncio
 import websockets
 
-import logging
+from ServerStatusHelper import ServerStatusHelper
 
+ss = ServerStatusHelper()
 
 # Constants
 HOST = 'localhost'
@@ -14,25 +15,23 @@ def info_con(name):
 def info_discon(name):
     return INFO_DISCONNECTED.replace('{name}', str(name))
 
+
 # Dynamic
 connected = set()
-current_ID = 0
 
 
-def get_connected_list():
-    # as fast as possible boi
-    global connected
-    return [*connected]
+# Add JSON support for chat
+async def update_server_status():
+    while True:
+        api_response = ss.update()
+        websockets.broadcast(connected, f'[SERVER_STATUS]: {"online" if api_response["online"] else "offline"}<br>{"<br>".join(api_response["motd"]["html"])}')
 
-
-def get_connected_list_string():
-    return ', '.join(str(i) for i in get_connected_list())
-
+        await asyncio.sleep(10)
 
 ####
 async def broadcast():
     while True:
-        websockets.broadcast(connected, '[SERVER]: woof constantly!')
+        # websockets.broadcast(connected, '[SERVER]: woof constantly!')
         await asyncio.sleep(10)
 
 
@@ -62,12 +61,14 @@ async def handler(websocket, path):
         connected.remove(websocket)
 
 
-# SETUP
-asyncio.get_event_loop().create_task(broadcast())
+if __name__ == '__main__':
+    # SETUP
+    asyncio.get_event_loop().create_task(update_server_status())
+    asyncio.get_event_loop().create_task(broadcast())
 
-print(f'Starting websocket server on ws://{HOST}:{PORT}')
-start_server = websockets.serve(handler, HOST, PORT)
+    print(f'Starting websocket server on ws://{HOST}:{PORT}')
+    start_server = websockets.serve(handler, HOST, PORT)
 
-print('Running event loop..')
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+    print('Running event loop..')
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
