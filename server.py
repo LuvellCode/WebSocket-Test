@@ -49,7 +49,9 @@ async def handler(websocket, path):
 
     try:
         async for msg in websocket:
-            if msg == 'ping':
+            if msg == 'Connection established':
+                pass
+            elif msg == 'ping':
                 await websocket.send('[SERVER]: Pong!')
             else:
                 websockets.broadcast(connected, f'[{name}]: {msg}')

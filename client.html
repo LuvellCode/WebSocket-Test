@@ -38,30 +38,24 @@
             console.log(event.data);
 
             let msgs = document.querySelector("#messages");
-            let check = msgs.scrollHeight - msgs.scrollTop === msgs.clientHeight;
+            let checkScroll = msgs.scrollHeight - msgs.scrollTop === msgs.clientHeight;
 
-            console.log(msgs.scrollTop, msgs.scrollHeight);
-
-            try{
-                console.log(msgs.lastChild.innerText);
-                if(msgs.lastChild.innerText.substring(0, event.data.length) == event.data)
-                {
-                    if(msgs.lastChild.innerText.search(/|\sx\d*$/) != -1) {
-                        msgs.lastChild.innerText.replace(/|\sx(\d*)$/, (a,b) => {`|x${}`} )
-                    }
-                    else {
-                        msgs.lastChild.innerText += '| x2';
-                    }
+            if(typeof msgs.lastChild.innerText !== 'undefined' && msgs.lastChild.innerText.substring(0, event.data.length) == event.data)
+            {
+                if(msgs.lastChild.innerText.search(/\| x\d*$/) != -1) {
+                    msgs.lastChild.innerText = msgs.lastChild.innerText.replace(/\|\sx(\d*)$/, (a,b) => {return `| x${Number.parseInt(b)+1}`} )
                 }
-            } catch (e){
-                console.log(e)
-            } finally{
+                else {
+                    msgs.lastChild.innerText += ' | x2';
+                }
+            }
+            else {
                 msgs.innerHTML += `<p>${event.data}</p>`;
             }
 
             console.log(msgs.scrollTop, msgs.scrollHeight);
 
-            if(check)
+            if(checkScroll)
             {
                 scrollToBottom(msgs);
             }
@@ -72,8 +66,9 @@
         });
         document.querySelector("#message_form").addEventListener("submit", function(e){
             e.preventDefault();
-            socket.send(document.querySelector("#text_input").value);
-            e.target.value = '';
+            let txt = document.querySelector("#text_input");
+            socket.send(txt.value);
+            txt.value = '';
         });
 
     </script>
